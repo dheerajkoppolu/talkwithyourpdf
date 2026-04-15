@@ -91,10 +91,16 @@ def build_vectorstore_cached(file_hash: str, file_bytes: bytes) -> Chroma:
             os.remove(temp_pdf_path)
 
 
-def get_llm() -> ChatGroq:
+'''def get_llm() -> ChatGroq:
     """Initialize Groq chat model."""
-    return ChatGroq(model=GROQ_MODEL_NAME, temperature=0)
+    return ChatGroq(model=GROQ_MODEL_NAME, temperature=0)'''
 
+def get_llm() -> ChatGroq:
+    return ChatGroq(
+        api_key="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",
+        model=GROQ_MODEL_NAME,
+        temperature=0
+    )
 
 def get_prompt() -> ChatPromptTemplate:
     """Prompt enforcing grounded answers from retrieved context only."""
