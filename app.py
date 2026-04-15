@@ -135,135 +135,6 @@ def answer_question(question: str, vectorstore: Chroma) -> Tuple[str, List[Docum
     return response.content, retrieved_docs
 
 
-def inject_supercomputer_theme() -> None:
-    """Inject custom CSS for an interactive 'AI brain' visual style."""
-    st.markdown(
-        """
-<style>
-/* Main canvas */
-.stApp {
-    background: radial-gradient(circle at 20% 20%, #0d1b4d 0%, #060b21 38%, #03050f 100%);
-    color: #e8f2ff;
-}
-
-/* Animated neural glow layer */
-.stApp::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 15% 35%, rgba(47, 128, 237, 0.25), transparent 32%),
-      radial-gradient(circle at 80% 20%, rgba(123, 97, 255, 0.22), transparent 30%),
-      radial-gradient(circle at 70% 75%, rgba(0, 215, 201, 0.15), transparent 38%);
-    animation: brainPulse 10s ease-in-out infinite;
-    z-index: 0;
-}
-@keyframes brainPulse {
-    0%, 100% { opacity: 0.55; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.03); }
-}
-
-/* Ensure content sits above glow layer */
-div[data-testid="stAppViewContainer"] > .main,
-div[data-testid="stSidebar"] { position: relative; z-index: 1; }
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, rgba(8, 16, 45, 0.98), rgba(8, 12, 30, 0.98));
-    border-right: 1px solid rgba(76, 122, 255, 0.35);
-}
-
-/* Hero card */
-.hero-card {
-    border: 1px solid rgba(100, 165, 255, 0.45);
-    border-radius: 18px;
-    padding: 1.1rem 1.2rem;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, rgba(10, 24, 60, 0.88), rgba(9, 14, 36, 0.9));
-    box-shadow: 0 0 22px rgba(56, 126, 255, 0.18), inset 0 0 18px rgba(33, 79, 180, 0.2);
-}
-
-.hero-title {
-    font-size: 2.1rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: #dff0ff;
-    margin-bottom: 0.25rem;
-}
-
-.hero-subtitle {
-    color: #96c2ff;
-    margin-bottom: 0.75rem;
-}
-
-.status-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.status-pill {
-    padding: 0.3rem 0.6rem;
-    border-radius: 999px;
-    border: 1px solid rgba(110, 173, 255, 0.45);
-    font-size: 0.78rem;
-    background: rgba(10, 26, 65, 0.7);
-}
-
-/* Chat bubble upgrade */
-div[data-testid="stChatMessage"] {
-    border: 1px solid rgba(97, 151, 255, 0.18);
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(8, 19, 47, 0.82), rgba(8, 13, 30, 0.7));
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] p {
-    color: #eef5ff;
-}
-
-/* Buttons and inputs */
-.stButton > button,
-.stDownloadButton > button {
-    border: 1px solid rgba(103, 177, 255, 0.55);
-    color: #e8f3ff;
-    background: linear-gradient(135deg, rgba(16, 44, 102, 0.8), rgba(12, 26, 63, 0.9));
-}
-.stButton > button:hover {
-    border-color: rgba(124, 195, 255, 0.9);
-    box-shadow: 0 0 16px rgba(74, 146, 255, 0.35);
-}
-
-/* Hide default top menu/deploy for cleaner sci-fi frame */
-#MainMenu, header[data-testid="stHeader"] { visibility: hidden; }
-</style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def render_hero_panel() -> None:
-    """Render AI themed header panel."""
-    vector_ready = "READY" if st.session_state.vectorstore is not None else "WAITING FOR PDF"
-    turns = len(st.session_state.messages)
-    st.markdown(
-        f"""
-<div class="hero-card">
-    <div class="hero-title">🧠 Neural PDF Intelligence Console</div>
-    <div class="hero-subtitle">Query your document like an AI supercomputer searching memory shards.</div>
-    <div class="status-row">
-        <span class="status-pill">Vector Brain: {vector_ready}</span>
-        <span class="status-pill">Conversation Turns: {turns}</span>
-        <span class="status-pill">Retriever Top-K: {TOP_K}</span>
-        <span class="status-pill">Model: {GROQ_MODEL_NAME}</span>
-    </div>
-</div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
 # ------------------------------
 # Session state initialization
 # ------------------------------
@@ -280,17 +151,14 @@ if "active_pdf_hash" not in st.session_state:
 # ------------------------------
 # UI
 # ------------------------------
-inject_supercomputer_theme()
-render_hero_panel()
-st.markdown("### ⚡ Mission Control")
-st.markdown("Upload a PDF, then ask questions while the AI retrieves memory chunks from its vector brain.")
+st.title("📄 Chat with PDF")
+st.markdown("Upload a PDF and ask questions about its content using RAG.")
 
 with st.sidebar:
-    st.header("🛰️ Document Dock")
-    st.caption("Feed one PDF into the intelligence core.")
+    st.header("1) Upload PDF")
     uploaded_file = st.file_uploader("Choose a PDF file", type=["pdf"])
 
-    if st.button("♻️ Clear chat history"):
+    if st.button("Clear chat history"):
         st.session_state.messages = []
         st.success("Chat history cleared.")
 
@@ -322,7 +190,7 @@ if uploaded_file is not None:
 # ------------------------------
 # Chat history display
 # ------------------------------
-st.markdown("### 💬 Ask Questions")
+st.header("2) Ask Questions")
 for message in st.session_state.messages:
     if isinstance(message, HumanMessage):
         with st.chat_message("user"):
@@ -335,7 +203,7 @@ for message in st.session_state.messages:
 # ------------------------------
 # Chat input + RAG response
 # ------------------------------
-user_query = st.chat_input("Ask the neural console about your PDF...")
+user_query = st.chat_input("Ask something about your PDF...")
 
 if user_query is not None:
     if not user_query.strip():
