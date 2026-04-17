@@ -29,7 +29,6 @@ TOP_K = 3
 GROQ_MODEL_NAME = "llama-3.3-70b-versatile"
 VISION_MODEL_NAME = "llama-3.2-90b-vision-preview"
 SUPPORTED_UPLOAD_TYPES = ["pdf", "png", "jpg", "jpeg", "webp", "bmp", "tiff"]
-GROQ_API_KEY_ENV = "GROQ_API_KEY"
 
 
 def file_hash(file_bytes: bytes) -> str:
@@ -65,7 +64,7 @@ def get_source_type(uploaded_file: st.runtime.uploaded_file_manager.UploadedFile
 
 def extract_text_from_image_with_llm(image_bytes: bytes, mime_type: str) -> str:
     encoded_image = base64.b64encode(image_bytes).decode("utf-8")
-    llm = ChatGroq(model=VISION_MODEL_NAME, temperature=0, api_key=get_groq_api_key())
+    llm = ChatGroq(model=VISION_MODEL_NAME, temperature=0)
     response = llm.invoke(
         [
             HumanMessage(
@@ -131,17 +130,7 @@ def build_vectorstore_cached(
 
 
 def get_llm() -> ChatGroq:
-    return ChatGroq(model=GROQ_MODEL_NAME, temperature=0, api_key=get_groq_api_key())
-
-
-def get_groq_api_key() -> str:
-    """Read Groq API key from environment variable."""
-    api_key = os.getenv(GROQ_API_KEY_ENV, "").strip()
-    if not api_key:
-        raise ValueError(
-            f"Missing API key. Set {GROQ_API_KEY_ENV} before running the app."
-        )
-    return api_key
+    return ChatGroq(model=GROQ_MODEL_NAME, temperature=0)
 
 
 def get_prompt() -> ChatPromptTemplate:
